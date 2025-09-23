@@ -16,10 +16,18 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const response = await loginUser({ email, password, role });
-      console.log("Login successful:", response);
+      const data = await loginUser({ email, password, role });
+      console.log("Login successful:", data);
+
+      // store token and role
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("role", role);
+
       setLoading(false);
-      navigate("/dashboard");
+
+      // redirect based on role
+      if (role === "student") navigate("/students");
+      else if (role === "teacher") navigate("/teachers");
     } catch (err) {
       console.error(err);
       alert(err.message || "Login failed");

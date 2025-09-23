@@ -2,10 +2,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const pool = require("../db");
 
-// Teacher Signup
 exports.teacherSignup = async (req, res) => {
   try {
-    const { name, email, password, subject } = req.body;
+    const { name, email, password } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields required" });
     }
@@ -19,8 +18,8 @@ exports.teacherSignup = async (req, res) => {
 
     const hash = await bcrypt.hash(password, 10);
     await pool.query(
-      "INSERT INTO teachers (name, email, password_hash, subject) VALUES (?, ?, ?, ?)",
-      [name, email, hash, subject || null]
+      "INSERT INTO teachers (name, email, password_hash) VALUES (?, ?, ?)",
+      [name, email, hash]
     );
 
     res.status(201).json({ message: "Teacher registered successfully" });
@@ -30,7 +29,6 @@ exports.teacherSignup = async (req, res) => {
   }
 };
 
-// Teacher Login
 exports.teacherLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -56,7 +54,6 @@ exports.teacherLogin = async (req, res) => {
   }
 };
 
-// Student Signup
 exports.studentSignup = async (req, res) => {
   try {
     const { name, email, password, class: studentClass } = req.body;
@@ -84,7 +81,6 @@ exports.studentSignup = async (req, res) => {
   }
 };
 
-// Student Login
 exports.studentLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
