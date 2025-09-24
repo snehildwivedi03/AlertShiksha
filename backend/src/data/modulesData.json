@@ -2,7 +2,7 @@
   {
     "title": "Earthquake Safety Basics",
     "type": "pdf",
-    "url": "/backend/src/assets/pdfs/earthquack.pdf",
+    "url": "/pdfs/earthquake_basics.pdf",
     "class_group": "6-8",
     "description": "Basics of earthquake safety for middle school students",
     "created_by": 1
@@ -10,7 +10,7 @@
   {
     "title": "Flood Preparedness",
     "type": "pdf",
-    "url": "/assets/pdfs/floods.pdf",
+    "url": "/pdfs/floods.pdf",
     "class_group": "9-12",
     "description": "Short guide on flood preparedness",
     "created_by": 1
@@ -18,7 +18,7 @@
   {
     "title": "Fire Safety Tips",
     "type": "pdf",
-    "url": "/assets/pdfs/Fire_Safety.pdf",
+    "url": "/pdfs/fire_safety.pdf",
     "class_group": "College",
     "description": "Short guide on fire safety preparedness",
     "created_by": 1
