@@ -10,7 +10,6 @@ import Navbar from "./components/Navbar";
 import TopStrip from "./components/TopStrip";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
-
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
@@ -26,6 +25,8 @@ import Students from "./pages/Students";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
+import ChatAssistant from "./components/ChatAssistant";
 
 // Layout component to handle Navbar/TopStrip/Footer visibility
 const Layout = ({ children }) => {
@@ -54,6 +55,10 @@ const AppContent = () => {
     return () => clearTimeout(timer);
   }, [location.pathname]);
 
+  // Determine if ChatAssistant should show
+  const hideChat =
+    location.pathname === "/login" || location.pathname === "/signup";
+
   return (
     <>
       {loading ? (
@@ -79,6 +84,9 @@ const AppContent = () => {
           </Routes>
         </Layout>
       )}
+
+      {/* ChatAssistant: show on all pages except login/signup */}
+      {!hideChat && <ChatAssistant />}
 
       {/* Toast notifications */}
       <ToastContainer
