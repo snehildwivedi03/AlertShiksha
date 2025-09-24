@@ -14,7 +14,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "axios": "^1.12.2",
     "formik": "^2.4.6",
-    "framer-motion": "^12.23.19",
+    "framer-motion": "^12.23.21",
     "i18next": "^25.5.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.544.0",
