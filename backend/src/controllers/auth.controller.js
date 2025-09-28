@@ -47,7 +47,17 @@ exports.teacherLogin = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-    res.json({ token });
+
+    // --- FIX: Send back the complete user object along with the token ---
+    res.json({
+      token,
+      user: {
+        id: teacher.id,
+        name: teacher.name,
+        email: teacher.email,
+        role: "teacher",
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -99,7 +109,18 @@ exports.studentLogin = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
-    res.json({ token });
+
+    // --- FIX: Send back the complete user object along with the token ---
+    res.json({
+      token,
+      user: {
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        role: "student",
+        class: student.class,
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

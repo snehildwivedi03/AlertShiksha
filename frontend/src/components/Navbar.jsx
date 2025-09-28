@@ -1,26 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../assets/logo.png"; // Your logo is correctly imported here
+import logo from "../assets/logo.png";
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [role, setRole] = useState(null);
-
-  const navigate = useNavigate();
-  const location = useLocation();
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role");
-    setIsAuthenticated(!!token);
-    setRole(storedRole);
-  }, [location]);
+  const auth = useAuth();
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -33,10 +25,9 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setIsAuthenticated(false);
-    setRole(null);
+    if (auth) {
+      auth.logout();
+    }
     navigate("/login");
   };
 
@@ -46,22 +37,29 @@ const Navbar = () => {
     setMobileServicesOpen(false);
   };
 
+  if (!auth) {
+    return null;
+  }
+
+  const { isAuthenticated, user } = auth;
+
   const activeClass =
     "text-yellow-300 underline underline-offset-4 font-semibold";
   const inactiveClass = "hover:text-gray-200 transition-colors";
 
-  const roleLink = role === "student" ? "/students" : "/teachers";
-  const roleLabel = role === "student" ? "Students" : "Teachers";
+  const roleLink = user?.role === "student" ? "/students" : "/teachers";
+  const roleLabel = user?.role === "student" ? "Students" : "Teachers";
 
   return (
     <nav className="bg-[#2b5280] text-white shadow-md fixed w-full z-50 top-[32px]">
       <div className="container mx-auto flex items-center justify-between px-6 py-3">
-        {/* --- CHANGE IS HERE --- */}
-        {/* The text has been removed, leaving only the logo. This is cleaner and responsive. */}
-        <NavLink to="/" onClick={closeAll}>
-          <img src={logo} alt="AlertShiksha" className="h-10 w-auto" />
+        <NavLink to="/" onClick={closeAll} className="flex-shrink-0">
+          <img
+            src={logo}
+            alt="AlertShiksha"
+            className="h-10 w-10 object-cover rounded-full flex-shrink-0 mr-4"
+          />
         </NavLink>
-        {/* --- END OF CHANGE --- */}
 
         {/* Desktop */}
         <div className="hidden md:flex items-center space-x-8 font-medium">
@@ -73,7 +71,6 @@ const Navbar = () => {
           >
             Home
           </NavLink>
-
           <NavLink
             to="/about"
             className={({ isActive }) =>
@@ -82,7 +79,6 @@ const Navbar = () => {
           >
             About
           </NavLink>
-
           <NavLink
             to="/blog"
             className={({ isActive }) =>
@@ -91,7 +87,6 @@ const Navbar = () => {
           >
             Blog
           </NavLink>
-
           <NavLink
             to="/modules"
             className={({ isActive }) =>
@@ -120,7 +115,6 @@ const Navbar = () => {
                 } transition-transform`}
               />
             </button>
-
             <AnimatePresence>
               {dropdownOpen && (
                 <motion.div
@@ -136,29 +130,27 @@ const Navbar = () => {
                         Services
                       </h4>
                       <p className="text-sm text-gray-600">
-                        Quick access to emergency resources and support —
-                        localized for your institution.
+                        Quick access to emergency resources and support.
                       </p>
                       <div className="mt-3">
                         <button
                           className="text-sm px-3 py-1 bg-[#eaf6fb] text-[#20538c] rounded-md hover:bg-blue-100"
                           onClick={() => {
-                            navigate("/alerts");
+                            navigate("/services/emergency-contacts");
                             closeAll();
                           }}
                         >
-                          View Alerts
+                          View All
                         </button>
                       </div>
                     </div>
-
                     <div className="col-span-2 grid grid-cols-2 gap-4">
                       <div>
                         <h5 className="text-sm font-semibold text-gray-700 mb-2">
                           Emergency
                         </h5>
                         <NavLink
-                          to="/alerts"
+                          to="/services/emergency-contacts"
                           onClick={closeAll}
                           className="block text-sm p-2 rounded hover:bg-gray-100"
                         >
@@ -184,7 +176,7 @@ const Navbar = () => {
                           NGOs & Volunteers
                         </NavLink>
                         <NavLink
-                          to="/resources"
+                          to="/modules"
                           onClick={closeAll}
                           className="block text-sm p-2 rounded hover:bg-gray-100"
                         >
@@ -197,7 +189,6 @@ const Navbar = () => {
               )}
             </AnimatePresence>
           </div>
-
           <NavLink
             to="/contact"
             className={({ isActive }) =>
@@ -207,24 +198,13 @@ const Navbar = () => {
             Contact Us
           </NavLink>
 
-          {/* Auth Buttons */}
-          {isAuthenticated ? (
+          {isAuthenticated && user ? (
             <>
               <NavLink
-                to={
-                  role
-                    ? role === "student"
-                      ? "/students"
-                      : "/teachers"
-                    : "/dashboard"
-                }
+                to={roleLink}
                 className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 transition"
               >
-                {role
-                  ? role === "student"
-                    ? "Students"
-                    : "Teachers"
-                  : "Dashboard"}
+                {roleLabel}
               </NavLink>
               <button
                 onClick={handleLogout}
@@ -282,7 +262,6 @@ const Navbar = () => {
             <NavLink to="/modules" onClick={closeAll} className="block">
               Modules
             </NavLink>
-
             <div>
               <button
                 onClick={() => setMobileServicesOpen((s) => !s)}
@@ -296,10 +275,13 @@ const Navbar = () => {
                   } transition-transform`}
                 />
               </button>
-
               {mobileServicesOpen && (
                 <div className="pl-4 mt-2 space-y-2">
-                  <NavLink to="/alerts" onClick={closeAll} className="block">
+                  <NavLink
+                    to="/services/emergency-contacts"
+                    onClick={closeAll}
+                    className="block"
+                  >
                     Emergency Contacts
                   </NavLink>
                   <NavLink to="/ngos" onClick={closeAll} className="block">
@@ -311,12 +293,11 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-
             <NavLink to="/contact" onClick={closeAll} className="block">
               Contact Us
             </NavLink>
 
-            {isAuthenticated ? (
+            {isAuthenticated && user ? (
               <>
                 <NavLink
                   to={roleLink}
@@ -330,7 +311,7 @@ const Navbar = () => {
                     handleLogout();
                     closeAll();
                   }}
-                  className="block w-full text-left px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition text-center"
+                  className="block w-full px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition text-center"
                 >
                   Logout
                 </button>

@@ -6,6 +6,9 @@ import {
   useLocation,
 } from "react-router-dom";
 
+// --- FIX: Import the AuthProvider ---
+import { AuthProvider } from "./context/AuthContext";
+
 import Navbar from "./components/Navbar";
 import TopStrip from "./components/TopStrip";
 import Footer from "./components/Footer";
@@ -105,11 +108,14 @@ const AppContent = () => {
   );
 };
 
+// --- FIX: Wrap the entire application with AuthProvider ---
 // Main App
 const App = () => (
-  <Router>
-    <AppContent />
-  </Router>
+  <AuthProvider>
+    <Router>
+      <AppContent />
+    </Router>
+  </AuthProvider>
 );
 
 export default App;

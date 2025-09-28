@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
 import Loader from "../components/Loader";
+import { useAuth } from "../context/AuthContext"; // --- NEW: Import the useAuth hook ---
 
 const Login = () => {
   const [role, setRole] = useState("");
@@ -9,6 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth(); // --- NEW: Get the login function from our context ---
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,23 +18,23 @@ const Login = () => {
 
     setLoading(true);
     try {
+      // This function now needs to return { user: { ... }, token: "..." }
       const data = await loginUser({ email, password, role });
-      console.log("Login successful:", data);
 
-      // store token and role
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", role);
+      // --- UPDATED: Use the context to handle login ---
+      // This single function will update localStorage, state, and sync tabs.
+      // We are assuming `data.user` contains user details like name, email, and role.
+      login(data.user, data.token);
 
-      setLoading(false);
-
-      // redirect based on role
-      if (role === "student") navigate("/students");
-      else if (role === "teacher") navigate("/teachers");
+      // No change to redirect logic
+      if (data.user.role === "student") navigate("/students");
+      else if (data.user.role === "teacher") navigate("/teachers");
     } catch (err) {
       console.error(err);
-      alert(err.message || "Login failed");
+      alert(err.message || "Login failed. Please check your credentials.");
       setLoading(false);
     }
+    // setLoading(false) is handled inside the redirect or catch block
   };
 
   return (
