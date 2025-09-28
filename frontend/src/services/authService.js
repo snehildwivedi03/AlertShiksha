@@ -35,21 +35,42 @@ export const signupUser = async ({
 
 export const loginUser = async ({ role, email, password }) => {
   try {
+    let response;
     if (role === "teacher") {
-      const response = await axios.post(`${API_BASE}/auth/teacher/login`, {
+      response = await axios.post(`${API_BASE}/auth/teacher/login`, {
         email,
         password,
       });
-      return response.data;
     } else if (role === "student") {
-      const response = await axios.post(`${API_BASE}/auth/student/login`, {
+      response = await axios.post(`${API_BASE}/auth/student/login`, {
         email,
         password,
       });
-      return response.data;
     } else {
       throw new Error("Invalid role selected");
     }
+
+    // --- NEW: Re-structure the response to match what the AuthContext expects ---
+    // This assumes your backend login response includes a 'token' and a 'user' object.
+    // If your backend sends user data flat (e.g., name, email), we assemble it here.
+    const { token, user } = response.data;
+
+    if (!token || !user) {
+      // If the structure is different, we create it.
+      // This makes the frontend resilient even if the backend response changes slightly.
+      const responseData = response.data;
+      return {
+        token: responseData.token,
+        user: {
+          id: responseData.user_id || responseData.id,
+          name: responseData.name,
+          email: responseData.email,
+          role: responseData.role || role, // Use the role from the response, or fallback to the one sent.
+        },
+      };
+    }
+
+    return { token, user }; // Return in the expected { user, token } format
   } catch (err) {
     throw err.response?.data || err;
   }

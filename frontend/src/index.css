@@ -10,5 +10,6 @@ body,
   padding: 0;
   height: 100%;
   width: 100%;
-  overflow-x: hidden; /* prevent horizontal scroll */
+  overflow-x: hidden;
+  background-color: #e6f2ff;
 }
